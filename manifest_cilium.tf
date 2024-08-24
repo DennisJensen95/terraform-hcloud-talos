@@ -84,6 +84,17 @@ data "helm_template" "cilium_default" {
     name  = "operator.prometheus.serviceMonitor.enabled"
     value = var.cilium_enable_service_monitors ? "true" : "false"
   }
+
+  # Ingress
+  set {
+    name  = "ingressController.enabled"
+    value = var.cilium_enable_ingress ? "true" : "false"
+  }
+
+  # set {
+  #   name  = "ingressController.service.annotations.load-balancer.hetzner.cloud/location"
+  #   value = "fns1"
+  # }
 }
 
 data "helm_template" "cilium_from_values" {
