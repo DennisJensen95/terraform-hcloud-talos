@@ -73,6 +73,12 @@ variable "extra_firewall_rules" {
   description = "Additional firewall rules to apply to the cluster."
 }
 
+variable "worker_firewall_rules" {
+  type        = list(any)
+  default     = []
+  description = "Firewall rules to apply to the cluster worker nodes"
+}
+
 variable "firewall_kube_api_source" {
   type        = list(string)
   default     = null
@@ -320,6 +326,12 @@ variable "cilium_version" {
     The version of Cilium to deploy. If not set, the `1.16.0` version will be used.
     Needs to be compatible with the `kubernetes_version`: https://docs.cilium.io/en/stable/network/kubernetes/compatibility/
   EOF
+}
+
+variable "cilium_enable_ingress" {
+  type        = bool
+  default     = false
+  description = "If true, the Cilium Ingress Controller will be enabled."
 }
 
 variable "cilium_values" {

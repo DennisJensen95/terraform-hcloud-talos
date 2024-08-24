@@ -64,8 +64,8 @@ locals {
   firewall_rules_list = values(local.firewall_rules_merged)
 }
 
-resource "hcloud_firewall" "this" {
-  name = var.cluster_name
+resource "hcloud_firewall" "firewall_control_plane" {
+  name = "${var.cluster_name}-control-plane"
   dynamic "rule" {
     for_each = local.firewall_rules_list
     //noinspection HILUnresolvedReference
@@ -80,5 +80,48 @@ resource "hcloud_firewall" "this" {
   }
   labels = {
     "cluster" = var.cluster_name
+  }
+}
+
+
+locals {
+
+  worker_firewall_rules = [
+    {
+      description = "Allow Incoming Requests to Worker Nodes"
+      direction   = "in"
+      protocol    = "tcp"
+      port        = "50000"
+      source_ips  = var.firewall_kube_api_source != null ? var.firewall_kube_api_source : local.current_ips
+    },
+    {
+      description = "Allow Incoming Requests to Worker Nodes"
+      direction   = "in"
+      protocol    = "tcp"
+      port        = "30000-32767"
+      source_ips = [
+        "0.0.0.0/0",
+        "::/0"
+      ]
+    }
+  ]
+}
+
+resource "hcloud_firewall" "worker_firewall" {
+  name = "${var.cluster_name}-worker"
+  dynamic "rule" {
+    for_each = local.worker_firewall_rules
+    content {
+      description     = rule.value.description
+      direction       = rule.value.direction
+      protocol        = rule.value.protocol
+      port            = lookup(rule.value, "port", null)
+      destination_ips = lookup(rule.value, "destination_ips", [])
+      source_ips      = lookup(rule.value, "source_ips", [])
+    }
+  }
+  labels = {
+    "cluster" = var.cluster_name
+    "role"    = "worker"
   }
 }
