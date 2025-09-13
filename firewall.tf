@@ -94,16 +94,6 @@ locals {
       port        = "50000"
       source_ips  = var.firewall_kube_api_source != null ? var.firewall_kube_api_source : local.current_ips
     },
-    {
-      description = "Allow Incoming Requests to Worker Nodes"
-      direction   = "in"
-      protocol    = "tcp"
-      port        = "30000-32767"
-      source_ips = [
-        "0.0.0.0/0",
-        "::/0"
-      ]
-    }
   ]
 }
 
